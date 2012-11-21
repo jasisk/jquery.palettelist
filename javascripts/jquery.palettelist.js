@@ -99,6 +99,7 @@
   $.extend( PaletteList.prototype, {
 
     attach: function() {
+      if ( this.options.targetIsTrigger ) return;
       this.elements.target.after( this.elements.placeholder );
     },
 
@@ -109,7 +110,7 @@
       e.container = elements.container.clone().appendTo( e.placeholder );
       e.current = elements.current.clone().appendTo( e.container );
       e.currentLink = elements.link.clone().appendTo( e.current );
-      e.viewport = elements.viewport.clone().appendTo( e.container );
+      e.viewport = elements.viewport.clone().appendTo( document.body );
       e.list = elements.list.clone().appendTo( e.viewport );
 
       this.initDimensions();
@@ -120,7 +121,8 @@
     },
 
     bindEvents: function() {
-      var self = this;
+      var self = this,
+          triggerElem;
 
       if ( this.options.hover ) {
         this.elements.container.on({
@@ -139,7 +141,9 @@
         }, "." + prefix + "link" );
       }
 
-      this.elements.currentLink.on( "click", function( e ) {
+      triggerElem = this.elements[ self.options.targetIsTrigger ? "target" : "currentLink" ];
+
+      triggerElem.on( "click", function( e ) {
         if ( ! self.options.hover ) {
           self.toggleColors();
         }
@@ -170,7 +174,6 @@
 
       e.placeholder.css( $.extend({}, width, height) );
       e.currentLink.css( $.extend({}, width, height) );
-      e.viewport.css( left );
 
     },
 
@@ -234,6 +237,16 @@
         visible = !this.visible;
       }
       if ( visible ) {
+
+        var target = this.elements[ this.options.targetIsTrigger ? "target" : "placeholder" ],
+            offset = target.offset(),
+            coords;
+        var moved = ( target.outerHeight() - parseInt( this.lineHeight, 10 ) - 10 ) / 2;
+        coords = {
+          top: offset.top + moved +  "px",
+          left: offset.left + target.outerWidth() + 5 + "px"
+        };
+        this.elements.viewport.css( coords );
         this.elements.viewport.show();
         this.visible = true;
         this.bindDocument();
@@ -309,7 +322,8 @@
       link.css({
         "background-color": hex,
         "width": this.lineHeight,
-        "height": this.lineHeight
+        "height": this.lineHeight,
+        "display": "block"
       });
       if ( index != undefined ) {
         link.attr( "data-index", index );
@@ -323,7 +337,8 @@
  $.paletteList = {
     options: {
       colors: [ "red", "orange", "yellow", "green", "blue", "indigo", "violet" ],
-      hover: false
+      hover: false,
+      targetIsTrigger: false
     }
   };
 

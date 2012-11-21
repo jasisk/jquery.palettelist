@@ -10,13 +10,13 @@
   </style>
   <script>
     $( function() {
-      $("#test").paletteList();
+      $("#test").paletteList({targetIsTrigger: true});
     } );
   </script>
 </head>
 <body>
   <div>
-    <p>test <span id="test"></span> test</p>
+    <p>test <a href="#" id="test">laser</a> test</p>
   </div>
 </body>
 </html>
